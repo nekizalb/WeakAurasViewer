@@ -56,7 +56,6 @@ function DecodeAura(){
         bitfield = bitfield.substr(0,bitfield.lastIndexOf("11"));
         var precode = code
         code = code.replace(/01/g,"1");
-        output.innerHTML += code +" : " + symbol + "<br/>";
         map[code]=symbol;
         minCodeLen = Math.min(minCodeLen, code.length);
         maxCodeLen = Math.max(maxCodeLen, code.length);
@@ -66,5 +65,31 @@ function DecodeAura(){
     }
   }
   
-  output.innerHTML += info_byte + " " + num_symbols + " " + c0 + " " + c1 + " " + c2 + " " + orig_size + " ";
+  var testLength = minCodeLen;
+  var testCode
+  var decode = "";
+  while(true){
+    if (testLength <= bitfield.length)
+    {
+        testCode = bitfield.substr(bitfield.length - testLength);
+        if (testCode in map)
+        {
+            decode += map[testCode];
+            bitfield = bitfield.substr(0, bitfield.length - testLength);
+            testLength = minCodeLen;
+        }
+        else
+        {
+            testLength++;
+        }
+    }
+    else
+    {
+        if (offset >= decoded.length) break;
+        bitfield = decoded.substr(offset, 8) + bitfield;
+        offset += 8;
+    }
+  }
+  
+  output.innerHTML += decode;
 }
