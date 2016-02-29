@@ -40,6 +40,8 @@ function DecodeAura(){
   var symbol = "";
   bits = 0;
   
+  
+  //decode huffman map
   var map = new Array();
   while (n < num_symbols){
     bitfield = decoded.substr(offset,8) + bitfield;
@@ -65,6 +67,8 @@ function DecodeAura(){
     }
   }
   
+  
+  //use huffman map to decode rest of string
   var testLength = minCodeLen;
   var testCode
   var decode = "";
@@ -91,5 +95,130 @@ function DecodeAura(){
     }
   }
   
-  output.innerHTML += decode;
+  
+  //unescape the lua table
+  var regex = /\^(.)([^^]*)/g; //escapte codes take the form ^{1char code}{value}
+  var indent = "";
+  var key = true;
+  var match = regex.exec(decode);
+  var matches = new Array();
+  while(match != null){
+    matches.push(match);
+    match = regex.exec(decode);
+  }
+  //output.innerHTML += "<pre>";
+  for(i = 1; i < matches.length; i++){
+    //output.innerHTML += match[1] + " " + match[2] +"<br />";
+    switch(matches[i][1]){
+      case "T":
+        if(!key && matches[i+1][1] == "t"){
+          output.innerHTML += (key ? indent : "") + "{},<br />";
+          i++;
+        }
+        else{
+          output.innerHTML += (key ? indent : "") + "{<br />";
+          indent += "  ";
+        }
+        key = false;
+        break;
+      case "t":
+        indent = indent.slice(2);
+        output.innerHTML += (key ? indent : "") + "},<br />";
+        key = false;
+        break;
+      case "S":
+        var parsed = matches[i][2];
+        parsed = parsed.replace(/~\|/g,"~").replace(/~}/g, "^").replace(/~`/g, " ").replace(/~J/g, "\n")
+        while(parsed.indexOf("\n\n\n") != -1){parsed = parsed.replace(/\n\n\n/g,"\n\n")}
+        output.innerHTML += (key ? indent : "") + parsed + (key ? " = " : ",<br />");
+        break;
+      case "N":
+        output.innerHTML += (key ? indent : "") + matches[i][2] + (key ? " = " : ",<br />")
+        break;
+      case "b":
+        output.innerHTML += (key ? indent : "") + "false" + (key ? " = " : ",<br />")
+        break;
+      case "B":
+        output.innerHTML += (key ? indent : "") + "true" + (key ? " = " : ",<br />")
+        break;
+      case "F":
+        var mantissa = matches[i][2];
+        var exponent = matches[++i][2];
+        var result = mantissa * Math.pow(2,exponent);
+        output.innerHTML += (key ? indent : "") + result + (key ? " = " : ",<br />")
+        break;
+
+    }
+    key = !key;
+  }
+  output.innerHTML += "}<br />";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
