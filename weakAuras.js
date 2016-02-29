@@ -1,3 +1,52 @@
+var table = "t=";
+
+
+//following function from
+//http://www.deanmao.com/2012/08/09/converting-lua-code-into-json-via-js/
+//var esprima = require('esprima');
+function jsonExtractor(source) {
+  var root = esprima.parse(source);
+  var array = []
+  function traverse(node, obj, key) {
+    var child, visited = false;
+
+    if (node.type === 'TableAssignmentExpression') {
+      var name = node.left.value;
+      if (node.right.type === 'Literal') {
+        obj[name] = node.right.value;
+      } else if (node.right.elements) {
+        if (name) {
+          visited = true;
+          obj[name] = traverse(node.right.elements, {})
+        }
+      }
+    }
+
+    if (!visited) {
+      for (key in node) {
+        if (node.hasOwnProperty(key)) {
+          child = node[key];
+          if (typeof child === 'object' && child !== null) {
+            if (key === 'elements') {
+              var x = traverse(child, {}, key);
+              if (!x.frames) {
+                array.push(x);
+              }
+            } else {
+              traverse(child, obj, key);
+            }
+          }
+        }
+      }
+    }
+
+    return obj;
+  }
+  traverse(root);
+  return array;
+}
+
+
 function DecodeAura(){
   var input = document.getElementById("inputCode").innerHTML;
   var output = document.getElementById("outputTable");
@@ -113,10 +162,12 @@ function DecodeAura(){
       case "T":
         if(!key && matches[i+1][1] == "t"){
           output.innerHTML += (key ? indent : "") + "{},<br />";
+          table += "{},\n";
           i++;
         }
         else{
           output.innerHTML += (key ? indent : "") + "{<br />";
+          table += "{\n";
           indent += "  ";
         }
         key = false;
@@ -124,34 +175,41 @@ function DecodeAura(){
       case "t":
         indent = indent.slice(2);
         output.innerHTML += (key ? indent : "") + "},<br />";
+        table += "},\n";
         key = false;
         break;
       case "S":
         var parsed = matches[i][2];
-        parsed = parsed.replace(/~\|/g,"~").replace(/~}/g, "^").replace(/~`/g, " ").replace(/~J/g, "\n")
+        parsed = parsed.replace(/~\|/g,"~").replace(/~}/g, "^").replace(/~`/g, " ").replace(/~J/g, "\n").replace(/\r/g,"\n").replace(/\"/g,"\\\"")
         while(parsed.indexOf("\n\n\n") != -1){parsed = parsed.replace(/\n\n\n/g,"\n\n")}
-        output.innerHTML += (key ? indent : "") + parsed + (key ? " = " : ",<br />");
+        output.innerHTML += (key ? indent + "[" : "") + "\""+ parsed + (key ? "\"] = " : "\",<br />");
+        table += "\"" +parsed.replace(/\n/g,"\\n") + (key ? "\" = " : "\",\n");
         break;
       case "N":
         output.innerHTML += (key ? indent : "") + matches[i][2] + (key ? " = " : ",<br />")
+        table += matches[i][2] + (key ? " = " : ",\n");
         break;
       case "b":
         output.innerHTML += (key ? indent : "") + "false" + (key ? " = " : ",<br />")
+        table += "false" + (key ? " = " : ",\n");
         break;
       case "B":
         output.innerHTML += (key ? indent : "") + "true" + (key ? " = " : ",<br />")
+        table += "true" + (key ? " = " : ",\n");
         break;
       case "F":
         var mantissa = matches[i][2];
         var exponent = matches[++i][2];
         var result = mantissa * Math.pow(2,exponent);
         output.innerHTML += (key ? indent : "") + result + (key ? " = " : ",<br />")
+        table += result + (key ? " = " : ",\n");
         break;
 
     }
     key = !key;
   }
   output.innerHTML += "}<br />";
+  table += "}";
 }
 
 
