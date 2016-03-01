@@ -15,6 +15,22 @@
 	<input type="button" onclick="DecodeAura()" value="Submit"/>
   </form><br />
   <h3>Output:</h3>
-  <div><pre id="outputTable" /></div>
+  <ul class="tabset_tabs">
+     <li><a href="#tab1" class="active">Raw Lua Table</a></li>
+     <li><a href="#tab2">Custom Functions</a></li>
+     <li><a href="#tab3">Triggers</a></li>
+  </ul>
+  
+  <div id="tab1" class="tabset_content">
+     <pre id="rawLuaTableContent"></pre>
+  </div>
+  
+  <div id="tab2" class="tabset_content">
+     <div id="customFunctionsContent"></div>
+  </div>
+  
+  <div id="tab3" class="tabset_content">
+     <div id="triggersContent"></div>
+  </div>
   </body>
 </html>

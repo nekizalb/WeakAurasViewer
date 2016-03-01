@@ -49,7 +49,7 @@ function jsonExtractor(source) {
 
 function DecodeAura(){
   var input = document.getElementById("inputCode").innerHTML;
-  var output = document.getElementById("outputTable");
+  var output = document.getElementById("rawLuaTableContent");
   
   var decoded = "";
   
