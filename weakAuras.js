@@ -48,8 +48,12 @@ function jsonExtractor(source) {
 
 
 function DecodeAura(){
-  var input = document.getElementById("inputCode").innerHTML;
+  var input = document.getElementById("inputCode").value;
   var output = document.getElementById("rawLuaTableContent");
+  output.innerHTML="";
+  table="";
+  
+  if (input.length == 0) return;
   
   var decoded = "";
   
@@ -145,7 +149,7 @@ function DecodeAura(){
   }
   
   
-  //unescape the lua table
+  //un-escape the lua table
   var regex = /\^(.)([^^]*)/g; //escapte codes take the form ^{1char code}{value}
   var indent = "";
   var key = true;
@@ -161,12 +165,12 @@ function DecodeAura(){
     switch(matches[i][1]){
       case "T":
         if(!key && matches[i+1][1] == "t"){
-          output.innerHTML += (key ? indent : "") + "{},<br />";
+          output.innerHTML += (key ? indent : "") + "{},\n";
           table += "{},\n";
           i++;
         }
         else{
-          output.innerHTML += (key ? indent : "") + "{<br />";
+          output.innerHTML += (key ? indent : "") + "{\n";
           table += "{\n";
           indent += "  ";
         }
@@ -174,7 +178,7 @@ function DecodeAura(){
         break;
       case "t":
         indent = indent.slice(2);
-        output.innerHTML += (key ? indent : "") + "},<br />";
+        output.innerHTML += (key ? indent : "") + "},\n";
         table += "},\n";
         key = false;
         break;
@@ -182,26 +186,26 @@ function DecodeAura(){
         var parsed = matches[i][2];
         parsed = parsed.replace(/~\|/g,"~").replace(/~}/g, "^").replace(/~`/g, " ").replace(/~J/g, "\n").replace(/\r/g,"\n").replace(/\"/g,"\\\"")
         while(parsed.indexOf("\n\n\n") != -1){parsed = parsed.replace(/\n\n\n/g,"\n\n")}
-        output.innerHTML += (key ? indent + "[" : "") + "\""+ parsed + (key ? "\"] = " : "\",<br />");
+        output.innerHTML += (key ? indent + "[\"" : "\"") + parsed + (key ? "\"] = " : "\",\n");
         table += "\"" +parsed.replace(/\n/g,"\\n") + (key ? "\" = " : "\",\n");
         break;
       case "N":
-        output.innerHTML += (key ? indent : "") + matches[i][2] + (key ? " = " : ",<br />")
+        output.innerHTML += (key ? indent : "") + matches[i][2] + (key ? " = " : ",\n")
         table += matches[i][2] + (key ? " = " : ",\n");
         break;
       case "b":
-        output.innerHTML += (key ? indent : "") + "false" + (key ? " = " : ",<br />")
+        output.innerHTML += (key ? indent : "") + "false" + (key ? " = " : ",\n")
         table += "false" + (key ? " = " : ",\n");
         break;
       case "B":
-        output.innerHTML += (key ? indent : "") + "true" + (key ? " = " : ",<br />")
+        output.innerHTML += (key ? indent : "") + "true" + (key ? " = " : ",\n")
         table += "true" + (key ? " = " : ",\n");
         break;
       case "F":
         var mantissa = matches[i][2];
         var exponent = matches[++i][2];
         var result = mantissa * Math.pow(2,exponent);
-        output.innerHTML += (key ? indent : "") + result + (key ? " = " : ",<br />")
+        output.innerHTML += (key ? indent : "") + result + (key ? " = " : ",\n")
         table += result + (key ? " = " : ",\n");
         break;
 
@@ -209,6 +213,7 @@ function DecodeAura(){
     key = !key;
   }
   output.innerHTML += "}<br />";
+  hljs.highlightBlock(output);
   table += "}";
 }
 
