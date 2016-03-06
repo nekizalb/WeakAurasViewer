@@ -1,4 +1,5 @@
 var table = "t=";
+var auraTable;
 
 
 //following function from
@@ -44,6 +45,49 @@ function jsonExtractor(source) {
   }
   traverse(root);
   return array;
+}
+
+function formatLiteral(literal){
+	switch(typeof literal){
+		case "string":
+		  return "\"" + literal.replace(/\n/g,"\\n").replace(/\"/g,"\\\"")  + "\"";
+		case "number":
+		case "boolean":
+		  return literal;
+	}
+}
+
+function auraToString(node, indent){
+	var ret = indent;
+	switch(node.type){
+		case "TableAssignmentExpression":
+		  ret += node.left.value + " = ";
+		  switch(node.right.type){
+			  case "Literal":
+		        return ret + formatLiteral(node.right.value) + ",\n";
+			    break;
+			  case "ArrayExpression":
+				if(node.right.elements.length == 0){
+					return ret + "{},\n";
+				}else{
+			        ret += "{\n";
+					for(var i=0; i < node.right.elements.length; i++){
+						ret += auraToString(node.right.elements[i], indent + "  ");
+					}
+				return ret + indent + "},\n"
+				}
+			    break;
+		      case "UnaryExpression":
+			    return ret + node.right.operator + formatLiteral(node.right.argument.value) + ",\n";
+			
+			    break;
+			  default:
+			    throw "unhandled type (TableAssignmentExpression.right.type):" + node.right.type;
+		  } 
+		  break;
+		default:
+			throw "unhandled type(node.type):" + node.type;
+	}
 }
 
 
@@ -147,7 +191,7 @@ function DecodeAura(){
         offset += 8;
     }
   }
-  
+   output.innerHTML += decode
   
   //un-escape the lua table
   var regex = /\^(.)([^^]*)/g; //escapte codes take the form ^{1char code}{value}
@@ -186,7 +230,7 @@ function DecodeAura(){
         var parsed = matches[i][2];
         parsed = parsed.replace(/~\|/g,"~").replace(/~}/g, "^").replace(/~`/g, " ").replace(/~J/g, "\n").replace(/\r/g,"\n").replace(/\"/g,"\\\"")
         while(parsed.indexOf("\n\n\n") != -1){parsed = parsed.replace(/\n\n\n/g,"\n\n")}
-        output.innerHTML += (key ? indent + "[\"" : "\"") + parsed + (key ? "\"] = " : "\",\n");
+        output.innerHTML += (key ? indent + "" : "\"") + parsed + (key ? " = " : "\",\n");
         table += "\"" +parsed.replace(/\n/g,"\\n") + (key ? "\" = " : "\",\n");
         break;
       case "N":
@@ -215,6 +259,9 @@ function DecodeAura(){
   output.innerHTML += "}<br />";
   hljs.highlightBlock(output);
   table += "}";
+  auraTable = esprima.parse(table);
+  document.getElementById("customFunctionsContent").innerHTML = auraToString(auraTable.body[0].expression.elements[4], "")
+  hljs.highlightBlock(document.getElementById("customFunctionsContent"));
 }
 
 
