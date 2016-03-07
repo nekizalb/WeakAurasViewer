@@ -94,13 +94,17 @@ function PageLoad(){
   var pastebinCode = location.search.split('pastebin=')[1];
   if(pastebinCode != undefined && pastebinCode.length > 0){
     document.getElementById("inputCode").value = pastebinCode;
-    LoadPasteBinAura();
+    FetchPasteBin();
   }
 }
 
 function LoadPasteBinAura(){
   var pastebinCode = document.getElementById("inputCode").value
   location.search = "pastebin=" + pastebinCode;
+  
+}
+
+function FetchPasteBin(){
   
   if(pastebinCode.length != 0){
     $('#container').load('http://google.com');
