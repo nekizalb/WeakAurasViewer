@@ -4,6 +4,3 @@
 [submodule "externals/crossDomainAjax"]
 	path = externals/crossDomainAjax
 	url = git://github.com/padolsey-archive/jquery.fn.git
-[submodule "externals/featherlightjs"]
-	path = externals/featherlightjs
-	url = https://github.com/noelboss/featherlight.git
