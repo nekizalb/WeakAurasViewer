@@ -3,7 +3,7 @@
 	url = https://github.com/deanmao/esprima.git
 [submodule "externals/crossDomainAjax"]
 	path = externals/crossDomainAjax
-	url = git://github.com/padolsey-archive/jquery.fn.git
+	url = https://github.com/padolsey-archive/jquery.fn.git
 [submodule "externals/featherlightjs"]
 	path = externals/featherlightjs
 	url = https://github.com/noelboss/featherlight.git
