@@ -91,7 +91,7 @@ function auraToString(node, indent){
 }
 
 function PageLoad(){
-  pastebinCode = location.search.split('pastebin=')[1];
+  var pastebinCode = location.search.split('pastebin=')[1];
   if(pastebinCode != undefined && pastebinCode.length > 0){
     document.getElementById("inputCode").value = pastebinCode;
     LoadPasteBinAura();
@@ -99,6 +99,8 @@ function PageLoad(){
 }
 
 function LoadPasteBinAura(){
+  var pastebinCode = document.getElementById("inputCode").value
+  location.search = "pastebin=" + pastebinCode;
   
   if(pastebinCode.length != 0){
     $('#container').load('http://google.com');
