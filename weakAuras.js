@@ -99,13 +99,12 @@ function PageLoad(){
 }
 
 function LoadPasteBinAura(){
-  var pastebinCode = document.getElementById("inputCode").value
-  location.search = "pastebin=" + pastebinCode;
+  location.search = "pastebin=" + document.getElementById("inputCode").value;
   
 }
 
 function FetchPasteBin(){
-  
+  var pastebinCode = document.getElementById("inputCode").value;
   if(pastebinCode.length != 0){
     $('#container').load('http://google.com');
     
