@@ -90,9 +90,34 @@ function auraToString(node, indent){
 	}
 }
 
+function PageLoad(){
+  pastebinCode = location.search.split('pastebin=')[1];
+  if(pastebinCode != undefined && pastebinCode.length > 0){
+    document.getElementById("inputCode").value = pastebinCode;
+    LoadPasteBinAura();
+  }
+}
 
-function DecodeAura(){
-  var input = document.getElementById("inputCode").value;
+function LoadPasteBinAura(){
+  
+  if(pastebinCode.length != 0){
+    $('#container').load('http://google.com');
+    
+    $.ajax({
+      url: 'http://pastebin.com/' + document.getElementById("inputCode").value,
+      type: 'GET',
+      success: function(res) {
+     	var headline = $(res.responseText).find('textarea.paste_code').text();
+      	DecodeAura(headline);
+      }
+    });
+  }
+}
+
+
+function DecodeAura(input){
+	
+  //var input = document.getElementById("inputCode").value;
   var output = document.getElementById("rawLuaTableContent");
   output.innerHTML="";
   table="";
