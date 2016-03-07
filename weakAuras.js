@@ -132,13 +132,6 @@ function DecodeAura(input){
   var pad = "00000000"
   
   for (i = 0; i < input.length; i++) { 
-    if(bits > 8){
-		  var  str= (working & 0xFF).toString(2);
-      //output.innerHTML += "str: " + str + "<br />"
-      decoded += pad.substring(0, pad.length - str.length) + str;
-      working = working >> 8;
-      bits -= 8;
-    }
 	
 	  var value = b64Key.indexOf(input[i]);
     //output.innerHTML += value + "<br />"
@@ -147,6 +140,13 @@ function DecodeAura(input){
 	  bits += 6;
     //output.innerHTML += "<br />"
     //if(i > 10) break;
+    if(bits > 8){
+		  var  str= (working & 0xFF).toString(2);
+      //output.innerHTML += "str: " + str + "<br />"
+      decoded += pad.substring(0, pad.length - str.length) + str;
+      working = working >> 8;
+      bits -= 8;
+    }
   }
 
   var info_byte = parseInt(decoded.substr(0*8,8),2);
@@ -211,12 +211,12 @@ function DecodeAura(input){
     }
     else
     {
-        if (offset >= decoded.length) break;
+        if (offset > decoded.length) break;
         bitfield = decoded.substr(offset, 8) + bitfield;
         offset += 8;
     }
   }
-   output.innerHTML += decode
+   output.innerHTML += decode + "<br />"
   
   //un-escape the lua table
   var regex = /\^(.)([^^]*)/g; //escapte codes take the form ^{1char code}{value}
@@ -247,8 +247,13 @@ function DecodeAura(input){
         break;
       case "t":
         indent = indent.slice(2);
-        output.innerHTML += (key ? indent : "") + "},\n";
-        table += "},\n";
+		if(indent.length == 0){
+          output.innerHTML += (key ? indent : "") + "}\n";
+          table += "}\n";
+		} else{
+          output.innerHTML += (key ? indent : "") + "},\n";
+          table += "},\n";
+		}
         key = false;
         break;
       case "S":
@@ -281,9 +286,9 @@ function DecodeAura(input){
     }
     key = !key;
   }
-  output.innerHTML += "}<br />";
+  //output.innerHTML += "}<br />";
   hljs.highlightBlock(output);
-  table += "}";
+  //table += "}";
   auraTable = esprima.parse(table);
   document.getElementById("customFunctionsContent").innerHTML = auraToString(auraTable.body[0].expression.elements[4], "")
   hljs.highlightBlock(document.getElementById("customFunctionsContent"));
